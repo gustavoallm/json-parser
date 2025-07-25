@@ -306,7 +306,7 @@ function App() {
 
                 <div className="flex-1 bg-muted border border-border rounded-md p-2 overflow-auto">
                   {jsonOutput ? (
-                    <div className="flex items-start gap-1">
+                    <div className="flex h-40 items-start gap-1">
                       <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <pre
                         className="text-xs font-mono whitespace-pre-wrap text-primary m-0"
