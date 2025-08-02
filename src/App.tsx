@@ -1,21 +1,11 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertCircle,
-  CheckCircle,
-  Code,
-  Copy,
-  Download,
-  FileText,
-  RefreshCw,
-  Upload,
-  Zap,
-} from "lucide-react";
-import React, { useRef, useState } from "react";
+import { useHostTheme } from "@/hooks/useHostTheme";
+import { AlertCircle, Code, Copy, Download, FileText, RefreshCw, Upload, Zap } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 const sampleCsvData = `name,age,email,city,occupation
 John Doe,28,john.doe@email.com,New York,Software Engineer
@@ -25,6 +15,21 @@ Sarah Williams,31,sarah.williams@email.com,San Francisco,UX Designer
 David Brown,29,david.brown@email.com,Seattle,DevOps Engineer`;
 
 function App() {
+  const theme = useHostTheme();
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      root.classList.add(systemTheme);
+      return;
+    }
+
+    root.classList.add(theme);
+  }, [theme]);
+
   const [csvInput, setCsvInput] = useState(sampleCsvData);
   const [jsonOutput, setJsonOutput] = useState("");
   const [error, setError] = useState("");
@@ -58,16 +63,11 @@ function App() {
       headers.forEach((header, index) => {
         let value: any = values[index];
 
-        // Try to parse as number
         if (!isNaN(Number(value)) && value !== "") {
           value = Number(value);
-        }
-        // Try to parse as boolean
-        else if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+        } else if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
           value = value.toLowerCase() === "true";
-        }
-        // Handle null/undefined values
-        else if (value.toLowerCase() === "null" || value === "") {
+        } else if (value.toLowerCase() === "null" || value === "") {
           value = null;
         }
 
@@ -84,7 +84,7 @@ function App() {
     setError("");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300)); // Small delay for UX
+      await new Promise((resolve) => setTimeout(resolve, 300));
       const result = csvToJson(csvInput);
       setJsonOutput(result);
       toast({
@@ -168,15 +168,14 @@ function App() {
       .replace(/: null/g, ': <span class="json-null">null</span>');
   };
 
-  // Responsive, compact layout: fit on screen, no vertical scroll needed
   return (
-    <div className="min-h-screen bg-background text-primary flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-muted text-primary flex flex-col items-center justify-center">
       <div className="w-full max-w-7xl px-2 py-2">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-2 gap-2">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-primary rounded-lg">
-              <Zap className="w-6 h-6 text-white" />
+              <Zap className="w-6 h-6 text-secondary" />
             </div>
             <h1 className="text-2xl font-bold text-primary">JSON Parser</h1>
           </div>
@@ -204,8 +203,8 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* CSV Input Section */}
           <div className="h-[calc(100vh-12rem)]">
-            <div className="bg-white rounded-lg shadow-lg h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200">
+            <div className="bg-card rounded-lg shadow-lg h-full flex flex-col">
+              <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold text-primary">CSV Input</h2>
               </div>
               <div className="flex-1 p-4 flex flex-col gap-2">
@@ -241,11 +240,11 @@ function App() {
                   value={csvInput}
                   onChange={(e) => setCsvInput(e.target.value)}
                   placeholder="Enter CSV data..."
-                  className="min-h-[80px] flex-1 bg-muted border-border font-mono text-xs text-primary resize-none"
+                  className="min-h-[80px] flex-1 bg-muted border-border font-dmsans text-xs text-primary resize-none"
                   style={{ lineHeight: "1.2" }}
                 />
               </div>
-              <div className="p-4 border-t border-gray-200">
+              <div className="p-4 border-">
                 <Button
                   onClick={handleParse}
                   disabled={isLoading || !csvInput.trim()}
@@ -269,16 +268,16 @@ function App() {
 
           {/* JSON Output Section */}
           <div className="h-[calc(100vh-12rem)]">
-            <div className="bg-white rounded-lg shadow-lg h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200">
+            <div className="bg-card rounded-lg shadow-lg h-full flex flex-col">
+              <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold text-primary">JSON Output</h2>
               </div>
               <div className="flex-1 p-4 flex flex-col gap-2">
                 {error && (
-                  <Alert className="border-destructive/50 bg-destructive/10 py-1 px-2">
+                  <div className="flex items-center gap-1 border border-destructive/50 bg-destructive/10 py-1 px-2 rounded-md">
                     <AlertCircle className="h-3 w-3 text-destructive" />
-                    <AlertDescription className="text-destructive text-xs">{error}</AlertDescription>
-                  </Alert>
+                    <span className="text-destructive text-xs">{error}</span>
+                  </div>
                 )}
 
                 {jsonOutput && !error && (
@@ -307,9 +306,8 @@ function App() {
                 <div className="flex-1 bg-muted border border-border rounded-md p-2 overflow-auto">
                   {jsonOutput ? (
                     <div className="flex h-40 items-start gap-1">
-                      <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <pre
-                        className="text-xs font-mono whitespace-pre-wrap text-primary m-0"
+                        className="text-xs font-dmsans whitespace-pre-wrap text-primary m-0"
                         style={{ lineHeight: "1.2" }}
                         dangerouslySetInnerHTML={{
                           __html: formatJsonWithSyntaxHighlighting(jsonOutput),
