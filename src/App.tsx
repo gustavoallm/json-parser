@@ -1,11 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { useHostTheme } from "@/hooks/useHostTheme";
 import { AlertCircle, Code, Copy, Download, FileText, RefreshCw, Upload, Zap } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { Toaster, toast } from "sonner";
 
 const sampleCsvData = `name,age,email,city,occupation
 John Doe,28,john.doe@email.com,New York,Software Engineer
@@ -35,7 +34,6 @@ function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   const csvToJson = (csv: string): string => {
     if (!csv.trim()) {
@@ -87,10 +85,7 @@ function App() {
       await new Promise((resolve) => setTimeout(resolve, 300));
       const result = csvToJson(csvInput);
       setJsonOutput(result);
-      toast({
-        title: "Success!",
-        description: "CSV has been successfully converted to JSON",
-      });
+      toast.success("CSV has been successfully converted to JSON");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
       setError(errorMessage);
@@ -103,16 +98,9 @@ function App() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(jsonOutput);
-      toast({
-        title: "Copied!",
-        description: "JSON output copied to clipboard",
-      });
+      toast.success("JSON output copied to clipboard");
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive",
-      });
+      toast.error("Failed to copy to clipboard");
     }
   };
 
@@ -127,10 +115,7 @@ function App() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast({
-      title: "Downloaded!",
-      description: "JSON file has been downloaded",
-    });
+    toast.success("JSON file has been downloaded");
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,11 +130,7 @@ function App() {
       };
       reader.readAsText(file);
     } else {
-      toast({
-        title: "Error",
-        description: "Please select a valid CSV file",
-        variant: "destructive",
-      });
+      toast.error("Please select a valid CSV file");
     }
   };
 
